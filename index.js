@@ -29,6 +29,8 @@ async function run() {
 
     const serviceCollection = client.db("carDoctor").collection("service");
 
+    const bookingCollections = client.db("carDoctor").collection("order");
+
     app.get('/services',async(req,res) => {
         const cursor = serviceCollection.find();
         const result = await cursor.toArray();
@@ -40,6 +42,22 @@ async function run() {
         const query = {_id : new ObjectId(id)}
         const filter = await serviceCollection.findOne(query);
         res.send(filter)
+    })
+
+    // booking
+    app.post('/bookings',async(req,res) => {
+      const booking = req.body
+      const result =  await bookingCollections.insertOne(booking)
+      res.send(result);
+    })
+
+    app.get('/bookings',async(req,res) => {
+      let query = {};
+      if(req.query?.email){
+        query = {email: req.query.email};
+      }
+      const booking = await bookingCollections.find(query).toArray();
+      res.send(booking);
     })
     
     // Send a ping to confirm a successful connection
